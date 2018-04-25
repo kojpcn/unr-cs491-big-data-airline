@@ -1,29 +1,71 @@
-import java.io.IOException;
-import java.util.StringTokenizer;
-
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import java.io.*;
 
 public class Test {
-  public static void main(String[] args) throws Exception {
-    Configuration conf = new Configuration();
-    Job job = Job.getInstance(conf, "word count");
-    job.setJarByClass(WordCount.class);
-    job.setMapperClass(TokenizerMapper.class);
-    job.setCombinerClass(IntSumReducer.class);
-    job.setReducerClass(IntSumReducer.class);
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(IntWritable.class);
-    FileInputFormat.addInputPath(job, new Path(args[0]));
-    FileOutputFormat.setOutputPath(job, new Path(args[1]));
-    System.exit(job.waitForCompletion(true) ? 0 : 1);
-  }
+    public static void main(String [] args) {
+
+        // The name of the file to open.
+        String fileName = "routes/routes.csv";
+
+        // This will reference one line at a time
+        String line = null;
+
+        try {
+            // FileReader reads text files in the default encoding.
+            FileReader fileReader = 
+                new FileReader(fileName);
+
+            // Always wrap FileReader in BufferedReader.
+            BufferedReader bufferedReader = 
+                new BufferedReader(fileReader);
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter("routes.txt"));
+
+            // for(int j = 0; j < 50; j++){
+            //     line = bufferedReader.readLine();
+            while((line = bufferedReader.readLine()) != null) {
+                if(line.substring(line.length() - 1).equals(","))
+                    line = (line + " ");
+                String[] split = (line.replaceAll(",,", ", ,")).split(",+");
+
+                // FileReader reads text files in the default encoding.
+                FileReader fileReader2 = 
+                    new FileReader("airlines/airlines.csv");
+
+                // Always wrap FileReader in BufferedReader.
+                BufferedReader bufferedReader2 = 
+                    new BufferedReader(fileReader2);
+
+                System.out.println(split[0]);
+
+                    for(int i = 0; i < 2; i++)
+                        writer.write(split[i] + ",");
+                    writer.write(split[3] + ",");
+                    writer.write(split[2] + ",");
+                    for(int i = 4; i < 11; i++)
+                        writer.write(split[i] + ",");
+                    writer.write(split[11] + "\n");
+
+
+                bufferedReader2.close();
+
+            }   
+
+            writer.close();
+
+            // Always close files.
+            bufferedReader.close();         
+        }
+        catch(FileNotFoundException ex) {
+            System.out.println(
+                "Unable to open file '" + 
+                fileName + "'");                
+        }
+        catch(IOException ex) {
+            System.out.println(
+                "Error reading file '" 
+                + fileName + "'");                  
+            // Or we could just do this: 
+            // ex.printStackTrace();
+        }
+    }
 }
