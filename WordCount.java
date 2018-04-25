@@ -1,6 +1,7 @@
 import java.io.*;
 import java.io.IOException;
 import java.util.StringTokenizer;
+import java.util.Scanner;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.io.LongWritable;
@@ -283,42 +284,40 @@ public class WordCount {
 	}
 
 	public static void main(String[] args) throws Exception {
-		public static void main(String[] args) throws Exception {
-			Scanner scanner = new Scanner(System.in);
-			System.out.println("1. Airport and airline search engine\n2. Airline aggregation\n3. Trip recommendation");
-			int choice = scanner.nextInt();
-			if (choice == 1){
-				scanner.nextLine(); // Remove nextline character from previous input
-				System.out.println("Which country?");
-				String cinput = scanner.nextLine();
-				AirportByCountry(args[0], args[3], "\"" + cinput + "\"");
-			/*
-				AirlineStops(args[2], args[3], "ACE", "BFS", "0");
-				System.in.read();
-				FileUtils.deleteDirectory(new File("output"));
+		Scanner scanner = new Scanner(System.in);
+		System.out.println("1. Airport and airline search engine\n2. Airline aggregation\n3. Trip recommendation");
+		int choice = scanner.nextInt();
+		if (choice == 1){
+			scanner.nextLine(); // Remove nextline character from previous input
+			System.out.println("Which country?");
+			String cinput = scanner.nextLine();
+			AirportByCountry(args[0], args[3], "\"" + cinput + "\"");
+		/*
+			AirlineStops(args[2], args[3], "ACE", "BFS", "0");
+			System.in.read();
+			FileUtils.deleteDirectory(new File("output"));
 
-				ActiveAirlines(args[1], args[3], "\"Japan\"");
-				System.in.read();
-				FileUtils.deleteDirectory(new File("output"));
+			ActiveAirlines(args[1], args[3], "\"Japan\"");
+			System.in.read();
+			FileUtils.deleteDirectory(new File("output"));
 
-				AggregateByCountry(args[0], args[3]);
-				System.in.read();
-				FileUtils.deleteDirectory(new File("output"));
+			AggregateByCountry(args[0], args[3]);
+			System.in.read();
+			FileUtils.deleteDirectory(new File("output"));
 
-				CodeShare(args[2], args[3]);
-				System.in.read();
-				FileUtils.deleteDirectory(new File("output"));
+			CodeShare(args[2], args[3]);
+			System.in.read();
+			FileUtils.deleteDirectory(new File("output"));
 
-				AirlineCity(args[2], args[3]);
-				System.in.read();
-			*/
-			} else if (choice == 2){
-				// Do other stuff
-			} else if (choice == 3){
-				// You already know
-			} else{
-				System.out.println("Invalid input, quitting...");
-			}
+			AirlineCity(args[2], args[3]);
+			System.in.read();
+		*/
+		} else if (choice == 2){
+			// Do other stuff
+		} else if (choice == 3){
+			// You already know
+		} else{
+			System.out.println("Invalid input, quitting...");
 		}
 	}
 }
