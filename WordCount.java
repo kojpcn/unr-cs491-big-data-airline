@@ -254,9 +254,9 @@ public class WordCount {
 
 
       if (!split[2].equals("\\N") && !split[5].equals("\\N") && !split[8].equals("\\N")) {
-        word.set(split[5] + " " + split[2]);
+        word.set(split[5] + "," + split[2]);
         context.write(word, NullWritable.get());
-        word.set(split[8] + " " + split[2]);
+        word.set(split[8] + "," + split[2]);
         context.write(word, NullWritable.get());
       }
     }
@@ -286,6 +286,35 @@ public class WordCount {
     return(job.waitForCompletion(true) ? 0 : 1);
   }
 
+  public static class AggregateAirlineMapper
+       extends Mapper<Object, Text, Text, IntWritable>{
+
+    private final static IntWritable one = new IntWritable(1);
+    private Text word = new Text();
+
+    public void map(Object key, Text value, Context context
+                    ) throws IOException, InterruptedException {
+      String[] split = value.toString().split(",+");
+
+      word.set(split[0]);
+      context.write(word, one);
+    }
+  }
+
+  public static int AirlineCityCount(String inputPath, String outputPath) throws Exception {
+    Configuration conf = new Configuration();
+    Job job = Job.getInstance(conf, "Count Airlines in Cities");
+    job.setJarByClass(WordCount.class);
+    job.setMapperClass(AggregateAirlineMapper.class);
+    job.setCombinerClass(IntSumReducer.class);
+    job.setReducerClass(IntSumReducer.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(IntWritable.class);
+    FileInputFormat.addInputPath(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    return(job.waitForCompletion(true) ? 0 : 1);
+  }
+
   public static void main(String[] args) throws Exception {
   	AirportByCountry(args[0], args[3], "\"Japan\"");
     FileUtils.deleteDirectory(new File("output"));
@@ -298,5 +327,7 @@ public class WordCount {
     CodeShare(args[2], args[3]);
     FileUtils.deleteDirectory(new File("output"));
     AirlineCity(args[2], args[3]);
+    FileUtils.forceDelete(new File("output/_SUCCESS"));
+    AirlineCityCount("output/part-r-00000", "output/output");
   }
 }

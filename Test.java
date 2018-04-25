@@ -37,12 +37,25 @@ public class Test {
 
                 System.out.println(split[0]);
 
-                    for(int i = 0; i < 2; i++)
-                        writer.write(split[i] + ",");
-                    writer.write(split[3] + ",");
-                    writer.write(split[2] + ",");
-                    for(int i = 4; i < 11; i++)
-                        writer.write(split[i] + ",");
+                    for(int i = 0; i < 11; i++)
+                        if(split[i].equals(" Torp\""))
+                            writer.write("\"Sandefjord\",");
+                        else if(split[i].equals(" Evenes\""))
+                            writer.write("\"Harstad/Narvik\",");
+                        else if(split[i].equals(" Hovden\""))
+                            writer.write("\"Orsta-Volda\",");
+                        else if(split[i].equals(" Longyear\""))
+                            writer.write("\"Svalbard\",");
+                        else if(split[i].equals(" Ryan Field\""))
+                            writer.write("\"Baton Rouge\",");
+                        else if(split[i].equals(" Ryum\""))
+                            writer.write("\"Rørvik\",");
+                        else if(split[i].equals(" Røssvoll\""))
+                            writer.write("\"Mo i Rana\",");
+                        else if(split[i].equals(" Svartnes\""))
+                            writer.write("\"Vardø\",");
+                        else
+                            writer.write(split[i] + ",");
                     writer.write(split[11] + "\n");
 
 
