@@ -76,7 +76,7 @@ public class WordCount {
 	}
 
 	public static class AirlineStopReducer extends Reducer<Text,NullWritable,Text,NullWritable> {
-		//private IntWritable result = new IntWritable();
+		// private IntWritable result = new IntWritable();
 
 		public void reduce(Text key, Iterable<NullWritable> values, Context context) throws IOException, InterruptedException {
 			// int sum = 0;
@@ -285,33 +285,38 @@ public class WordCount {
 
 	public static void main(String[] args) throws Exception {
 		Scanner scanner = new Scanner(System.in);
-		System.out.println("1. Airport and airline search engine\n2. Airline aggregation\n3. Trip recommendation");
+		System.out.printf("1. Airport and airline search engine\n2. Airline aggregation\n3. Trip recommendation"
+			+ "\nYour choice? ");
 		int choice = scanner.nextInt();
 		if (choice == 1){
+			System.out.printf("1. List of airports in country X\n2. List of airlines with X stops\n" + 
+				"3. List of airlines operating with code Share\n4. List of active airlines in the United States\n"
+				+ "Your choice? ");
+			choice = scanner.nextInt();
 			scanner.nextLine(); // Remove nextline character from previous input
-			System.out.println("Which country?");
-			String cinput = scanner.nextLine();
-			AirportByCountry(args[0], args[3], "\"" + cinput + "\"");
-		/*
-			AirlineStops(args[2], args[3], "ACE", "BFS", "0");
-			System.in.read();
-			FileUtils.deleteDirectory(new File("output"));
+			if (choice == 1){
+				System.out.printf("Which country? ");
+				String whichCountry = scanner.nextLine();
+				AirportByCountry(args[0], args[3], "\"" + whichCountry + "\"");
+			} else if (choice == 2){
+				System.out.printf("Which airport to start from? ");
+				String sourcePort = scanner.nextLine();
+				System.out.printf("Where is the destination? ");
+				String destinationPort = scanner.nextLine();
+				System.out.printf("How many stops? ");
+				choice = scanner.nextInt();
+				AirlineStops(args[2], args[3], sourcePort, destinationPort, Integer.toString(choice));
+			} else if (choice == 3){
+				CodeShare(args[2], args[3]);
+			} else if (choice == 4){
+				ActiveAirlines(args[1], args[3], "\"United States\"");
+			} else {
+				System.out.println("Invalid input, quitting...");
+			}
 
-			ActiveAirlines(args[1], args[3], "\"Japan\"");
-			System.in.read();
-			FileUtils.deleteDirectory(new File("output"));
+			// AggregateByCountry(args[0], args[3]);
+			// AirlineCity(args[2], args[3]);
 
-			AggregateByCountry(args[0], args[3]);
-			System.in.read();
-			FileUtils.deleteDirectory(new File("output"));
-
-			CodeShare(args[2], args[3]);
-			System.in.read();
-			FileUtils.deleteDirectory(new File("output"));
-
-			AirlineCity(args[2], args[3]);
-			System.in.read();
-		*/
 		} else if (choice == 2){
 			// Do other stuff
 		} else if (choice == 3){
