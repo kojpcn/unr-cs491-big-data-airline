@@ -2,6 +2,7 @@ import java.io.*;
 import java.io.IOException;
 import java.util.StringTokenizer;
 import java.util.Scanner;
+import java.nio.ByteBuffer;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.io.LongWritable;
@@ -10,11 +11,14 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 public class WordCount {
 
@@ -283,6 +287,69 @@ public class WordCount {
 		return(job.waitForCompletion(true) ? 0 : 1);
 	}
 
+	public static class IntComparator extends WritableComparator {
+
+    	public IntComparator() {
+        	super(IntWritable.class);
+    	}
+
+    	@Override
+    	public int compare(byte[] b1, int s1, int l1,
+             			   byte[] b2, int s2, int l2) {
+
+        	Integer v1 = ByteBuffer.wrap(b1, s1, l1).getInt();
+        	Integer v2 = ByteBuffer.wrap(b2, s2, l2).getInt();
+
+        	return v1.compareTo(v2) * (-1);
+    	}
+	}
+
+  	public static class GreatestValMapper
+       	   	    extends Mapper<Object, Text, IntWritable, Text>{
+
+    	private Text word = new Text();
+
+    	public void map(Object key, Text value, Context context
+        	            ) throws IOException, InterruptedException {
+      		String[] split = value.toString().split("\t+");
+
+      		word.set(split[0]);
+      		int valuePart = Integer.parseInt(split[1]);
+      		context.write(new IntWritable(valuePart), word);
+    	}
+  	}
+
+  	public static class GreatestValReducer
+       	        extends Reducer<IntWritable,Text,IntWritable,Text> {
+
+    	public void reduce(IntWritable key, Iterable<Text> values,
+        	               Context context
+            	           ) throws IOException, InterruptedException {
+      		for (Text val : values) {
+        		context.write(key, val);
+      		}
+    	}
+  	}
+
+  	public static int OrderGreatestVal(String inputPath, String outputPath) throws Exception {
+    	Configuration conf = new Configuration();
+    	Job job = Job.getInstance(conf, "Count Airlines in Cities");
+    	job.setJarByClass(WordCount.class);
+	    job.setMapperClass(GreatestValMapper.class);
+	    job.setCombinerClass(GreatestValReducer.class);
+	    job.setReducerClass(GreatestValReducer.class);
+	    job.setMapOutputKeyClass(IntWritable.class);
+	    job.setMapOutputValueClass(Text.class);
+	    job.setOutputKeyClass(IntWritable.class);
+	    job.setOutputValueClass(Text.class);
+	    job.setSortComparatorClass(IntComparator.class);
+	    FileInputFormat.addInputPath(job, new Path(inputPath));
+	    job.setInputFormatClass(TextInputFormat.class);
+	    FileOutputFormat.setOutputPath(job, new Path(outputPath));
+	    job.setOutputFormatClass(TextOutputFormat.class);
+	    return(job.waitForCompletion(true) ? 0 : 1);
+ 	}
+
 	public static void main(String[] args) throws Exception {
 		Scanner scanner = new Scanner(System.in);
 		System.out.printf("1. Airport and airline search engine\n2. Airline aggregation\n3. Trip recommendation"
@@ -320,8 +387,11 @@ public class WordCount {
 			scanner.nextLine();	// Remove nextline character from previous input
 			if (choice == 1){
 				AggregateByCountry(args[0], args[3]);
+				OrderGreatestVal("output/part-r-00000", "output/output");
 			} else if (choice == 2) {
 				AirlineCity(args[2], args[3]);
+				AirlineCityCount("output/part-r-00000", "output/output");
+				OrderGreatestVal("output/output/part-r-00000", "output/output2");
 			} else {
 				System.out.println("Invalid input, quitting...");
 			}
