@@ -288,17 +288,17 @@ public class WordCount {
 		System.out.printf("1. Airport and airline search engine\n2. Airline aggregation\n3. Trip recommendation"
 			+ "\nYour choice? ");
 		int choice = scanner.nextInt();
-		if (choice == 1){
+		if (choice == 1) {
 			System.out.printf("1. List of airports in country X\n2. List of airlines with X stops\n" + 
 				"3. List of airlines operating with code Share\n4. List of active airlines in the United States\n"
 				+ "Your choice? ");
 			choice = scanner.nextInt();
-			scanner.nextLine(); // Remove nextline character from previous input
-			if (choice == 1){
+			scanner.nextLine();	// Remove nextline character from previous input
+			if (choice == 1) {
 				System.out.printf("Which country? ");
 				String whichCountry = scanner.nextLine();
 				AirportByCountry(args[0], args[3], "\"" + whichCountry + "\"");
-			} else if (choice == 2){
+			} else if (choice == 2) {
 				System.out.printf("Which airport to start from? ");
 				String sourcePort = scanner.nextLine();
 				System.out.printf("Where is the destination? ");
@@ -306,19 +306,25 @@ public class WordCount {
 				System.out.printf("How many stops? ");
 				choice = scanner.nextInt();
 				AirlineStops(args[2], args[3], sourcePort, destinationPort, Integer.toString(choice));
-			} else if (choice == 3){
+			} else if (choice == 3) {
 				CodeShare(args[2], args[3]);
-			} else if (choice == 4){
+			} else if (choice == 4) {
 				ActiveAirlines(args[1], args[3], "\"United States\"");
 			} else {
 				System.out.println("Invalid input, quitting...");
 			}
 
-			// AggregateByCountry(args[0], args[3]);
-			// AirlineCity(args[2], args[3]);
-
-		} else if (choice == 2){
-			// Do other stuff
+		} else if (choice == 2) {
+			System.out.printf("1. Country with most airports\n2. Cities with most traffic\nYour choice? ");
+			choice = scanner.nextInt();
+			scanner.nextLine();	// Remove nextline character from previous input
+			if (choice == 1){
+				AggregateByCountry(args[0], args[3]);
+			} else if (choice == 2) {
+				AirlineCity(args[2], args[3]);
+			} else {
+				System.out.println("Invalid input, quitting...");
+			}
 		} else if (choice == 3){
 			// You already know
 		} else{
