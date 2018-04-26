@@ -605,9 +605,6 @@ public class AirlineSearchEngine {
 				visitedList = (visitedList + "," + s);
 		String[] visitedSplit = visitedList.split(",+");
 		List<String> visitedList2 = Arrays.asList(Arrays.copyOfRange(visitedSplit, 2, visitedSplit.length));
-		for(String s : visitedList2) {
-			System.out.println(s);
-		}
 
 		return visitedList2;
 	}	
@@ -786,13 +783,16 @@ public class AirlineSearchEngine {
 					}
 					System.out.println();
 				} else if (choice == 3) {
-					System.out.printf("Which airport to start from? ");
+					System.out.printf("Which city to start from? ");
 					String sourcePort = scanner.nextLine();
 					System.out.printf("How many hops? ");
 					int numHops = scanner.nextInt();
-					findHops(args, "\"" + sourcePort + "\"", numHops);
+					List<String> possibleCities = findHops(args, "\"" + sourcePort + "\"", numHops);
 					System.out.println();
-					printFile("output/part-r-00000");
+					System.out.println("The following cities are reachable from " + sourcePort + " in " + numHops + " hop" + ((numHops == 1) ? "" : "s") + ".");
+					for (String s : possibleCities){
+						System.out.println(s);
+					}
 					System.out.println();
 				} else {
 					System.out.println("Invalid input, quitting...");
