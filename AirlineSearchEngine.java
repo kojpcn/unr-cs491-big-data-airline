@@ -75,21 +75,15 @@ public class AirlineSearchEngine {
 
 			if (split[3].equals(sourcePort) && split[6].equals(destinationPort) && 
 					Integer.parseInt(split[10]) <= Integer.parseInt(stops)) {
-				word.set(split[2] + " " + split[10]);
+				word.set(split[2]);
 				context.write(word, NullWritable.get());
 			}
 		}
 	}
 
 	public static class AirlineStopReducer extends Reducer<Text,NullWritable,Text,NullWritable> {
-		// private IntWritable result = new IntWritable();
 
 		public void reduce(Text key, Iterable<NullWritable> values, Context context) throws IOException, InterruptedException {
-			// int sum = 0;
-			// for (IntWritable val : values) {
-			//	 sum += val.get();
-			// }
-			// result.set(sum);
 			context.write(key, NullWritable.get());
 		}
 	}
