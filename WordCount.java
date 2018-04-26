@@ -567,7 +567,49 @@ public class WordCount {
 				System.out.println("Invalid input, quitting...");
 			}
 		} else if (choice == 3){
-			findPath(args, "\"Reno\"", "\"Las Vegas\"");
+			System.out.printf("1. Check reachability\n2. Constrained reachability\n3. Bounded reachability\nYour choice? ");
+			choice = scanner.nextInt();
+			scanner.nextLine();	// Remove nextline character from previous input
+			if (choice == 1){
+				System.out.printf("Which airport to start from? ");
+				String sourcePort = scanner.nextLine();
+				System.out.printf("Where is the destination? ");
+				String destinationPort = scanner.nextLine();
+				List<String> isReachable = findPath(args, "\"" + sourcePort + "\"", "\"" + destinationPort + "\"");
+				if (isReachable.isEmpty()) {
+					System.out.println(destinationPort + " is not reachable from " + sourcePort);
+				} else {
+					System.out.println(destinationPort + " is reachable from " + sourcePort);
+					for (String s : isReachable){
+						System.out.println(s);
+					}
+				}
+			} else if (choice == 2) {
+				System.out.printf("Which airport to start from? ");
+				String sourcePort = scanner.nextLine();
+				System.out.printf("Where is the destination? ");
+				String destinationPort = scanner.nextLine();
+				System.out.printf("How many stops maximum? ");
+				int numStops = scanner.nextInt();
+				scanner.nextLine();	// Remove nextline character from previous input
+				List<String> isReachable = findPath(args, "\"" + sourcePort + "\"", "\"" + destinationPort + "\"");
+				if (isReachable.isEmpty()) {
+					System.out.println(destinationPort + " is not reachable from " + sourcePort);
+				} else if (isReachable.size() > numStops + 1) {
+					System.out.println(destinationPort + " is not reachable from " + sourcePort + " with less than " + numStops + " stops.");
+				} else {
+					System.out.println(destinationPort + " is reachable from " + sourcePort + " in " + (isReachable.size() - 1) + " stops.");
+					for (String s : isReachable){
+						System.out.println(s);
+					}
+				}
+			} else if (choice == 3) {
+				//
+			} else if (choice == 4) {
+				//
+			} else {
+				System.out.println("Invalid input, quitting...");
+			}
 		} else{
 			System.out.println("Invalid input, quitting...");
 		}
