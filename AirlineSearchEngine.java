@@ -22,7 +22,7 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
-public class WordCount {
+public class AirlineSearchEngine {
 
 	public static class AirportCountryMapper extends Mapper<Object, Text, Text, NullWritable>{
 
@@ -51,7 +51,7 @@ public class WordCount {
 		Configuration conf = new Configuration();
 		conf.set("countryName", countryName);
 		Job job = Job.getInstance(conf, "Airport by country");
-		job.setJarByClass(WordCount.class);
+		job.setJarByClass(AirlineSearchEngine.class);
 		job.setMapperClass(AirportCountryMapper.class);
 		job.setCombinerClass(AirportCountryReducer.class);
 		job.setReducerClass(AirportCountryReducer.class);
@@ -100,7 +100,7 @@ public class WordCount {
 		conf.set("destinationPort", destinationPort);
 		conf.set("stops", stops);
 		Job job = Job.getInstance(conf, "Airlines having stops");
-		job.setJarByClass(WordCount.class);
+		job.setJarByClass(AirlineSearchEngine.class);
 		job.setMapperClass(AirlineStopMapper.class);
 		job.setCombinerClass(AirlineStopReducer.class);
 		job.setReducerClass(AirlineStopReducer.class);
@@ -135,7 +135,7 @@ public class WordCount {
 	public static int CodeShare(String inputPath, String outputPath) throws Exception {
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf, "Code Share");
-		job.setJarByClass(WordCount.class);
+		job.setJarByClass(AirlineSearchEngine.class);
 		job.setMapperClass(CodeShareMapper.class);
 		job.setCombinerClass(CodeShareReducer.class);
 		job.setReducerClass(CodeShareReducer.class);
@@ -173,7 +173,7 @@ public class WordCount {
 		Configuration conf = new Configuration();
 		conf.set("countryName", countryName);
 		Job job = Job.getInstance(conf, "Active Airlines");
-		job.setJarByClass(WordCount.class);
+		job.setJarByClass(AirlineSearchEngine.class);
 		job.setMapperClass(ActiveAirlinesMapper.class);
 		job.setCombinerClass(ActiveAirlinesReducer.class);
 		job.setReducerClass(ActiveAirlinesReducer.class);
@@ -213,7 +213,7 @@ public class WordCount {
 	public static int AggregateByCountry(String inputPath, String outputPath) throws Exception {
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf, "Airport by country");
-		job.setJarByClass(WordCount.class);
+		job.setJarByClass(AirlineSearchEngine.class);
 		job.setMapperClass(AggregateCountryMapper.class);
 		job.setCombinerClass(IntSumReducer.class);
 		job.setReducerClass(IntSumReducer.class);
@@ -251,7 +251,7 @@ public class WordCount {
 	public static int AirlineCity(String inputPath, String outputPath) throws Exception {
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf, "Airlines in Cities");
-		job.setJarByClass(WordCount.class);
+		job.setJarByClass(AirlineSearchEngine.class);
 		job.setMapperClass(AirlineCityMapper.class);
 		job.setCombinerClass(NullReducer.class);
 		job.setReducerClass(NullReducer.class);
@@ -278,7 +278,7 @@ public class WordCount {
 	public static int AirlineCityCount(String inputPath, String outputPath) throws Exception {
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf, "Count Airlines in Cities");
-		job.setJarByClass(WordCount.class);
+		job.setJarByClass(AirlineSearchEngine.class);
 		job.setMapperClass(AggregateAirlineMapper.class);
 		job.setCombinerClass(IntSumReducer.class);
 		job.setReducerClass(IntSumReducer.class);
@@ -335,7 +335,7 @@ public class WordCount {
 	public static int OrderGreatestVal(String inputPath, String outputPath) throws Exception {
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf, "Count Airlines in Cities");
-		job.setJarByClass(WordCount.class);
+		job.setJarByClass(AirlineSearchEngine.class);
 		job.setMapperClass(GreatestValMapper.class);
 		job.setCombinerClass(GreatestValReducer.class);
 		job.setReducerClass(GreatestValReducer.class);
@@ -386,7 +386,7 @@ public class WordCount {
 		conf.set("city2", city2);
 		conf.set("visitedList", visitedList);
 		Job job = Job.getInstance(conf, "City to City");
-		job.setJarByClass(WordCount.class);
+		job.setJarByClass(AirlineSearchEngine.class);
 		job.setMapperClass(CitytoCityMapper.class);
 		job.setCombinerClass(NullReducer.class);
 		job.setReducerClass(NullReducer.class);
@@ -414,7 +414,7 @@ public class WordCount {
 	public static int UniqueCities(String inputPath, String outputPath) throws Exception {
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf, "UniqueCities");
-		job.setJarByClass(WordCount.class);
+		job.setJarByClass(AirlineSearchEngine.class);
 		job.setMapperClass(UniqueCityMapper.class);
 		job.setCombinerClass(NullReducer.class);
 		job.setReducerClass(NullReducer.class);
@@ -662,7 +662,7 @@ public class WordCount {
 			choice = scanner.nextInt();
 			scanner.nextLine();	// Remove nextline character from previous input
 			if (choice == 1){
-				System.out.printf("Which airport to start from? ");
+				System.out.printf("Which city to start from? ");
 				String sourcePort = scanner.nextLine();
 				System.out.printf("Where is the destination? ");
 				String destinationPort = scanner.nextLine();
@@ -676,7 +676,7 @@ public class WordCount {
 					}
 				}
 			} else if (choice == 2) {
-				System.out.printf("Which airport to start from? ");
+				System.out.printf("Which city to start from? ");
 				String sourcePort = scanner.nextLine();
 				System.out.printf("Where is the destination? ");
 				String destinationPort = scanner.nextLine();
@@ -687,9 +687,9 @@ public class WordCount {
 				if (isReachable.isEmpty()) {
 					System.out.println(destinationPort + " is not reachable from " + sourcePort);
 				} else if (isReachable.size() > numStops + 1) {
-					System.out.println(destinationPort + " is not reachable from " + sourcePort + " with less than " + numStops + " stops.");
+					System.out.println(destinationPort + " is not reachable from " + sourcePort + " with less than " + numStops + " stop" + ((numStops == 1) ? "" : "s") + ".");
 				} else {
-					System.out.println(destinationPort + " is reachable from " + sourcePort + " in " + (isReachable.size() - 1) + " stops.");
+					System.out.println(destinationPort + " is reachable from " + sourcePort + " in " + (isReachable.size() - 1) + " stop" + (((isReachable.size() - 1) == 1) ? "" : "s")  + ".");
 					for (String s : isReachable){
 						System.out.println(s);
 					}
