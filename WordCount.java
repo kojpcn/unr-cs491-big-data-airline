@@ -1,7 +1,9 @@
 import java.io.*;
+import java.util.*;
 import java.io.IOException;
 import java.util.StringTokenizer;
 import java.util.Scanner;
+import java.util.ArrayList;
 import java.nio.ByteBuffer;
 
 import org.apache.commons.io.FileUtils;
@@ -350,6 +352,175 @@ public class WordCount {
 	    return(job.waitForCompletion(true) ? 0 : 1);
  	}
 
+
+	public static class CitytoCityMapper extends Mapper<Object, Text, Text, NullWritable>{
+
+		private Text word = new Text();
+
+		public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+			Configuration conf = context.getConfiguration();
+			String cityList = conf.get("cityList");
+			String[] citySplit = cityList.split(",+");
+			List<String> cityList2 = Arrays.asList(citySplit);
+			String city2 = conf.get("city2");
+			String visitedList = conf.get("visitedList");
+			String[] visitedSplit = visitedList.split(",+");
+			List<String> visitedList2 = Arrays.asList(visitedSplit);
+			String[] split = value.toString().split(",+");
+
+			if (cityList2.contains(split[5]) && !visitedList2.contains(split[8])) {
+				if(split[8].equals(city2)) {
+					word.set("!," + value.toString());
+					context.write(word, NullWritable.get());
+				}
+				else {
+					word.set(value.toString());
+					context.write(word, NullWritable.get());
+				}
+			}
+		}
+	}
+
+	public static int CitytoCity(String inputPath, String outputPath, String cityList, String city2, String visitedList) throws Exception {
+		Configuration conf = new Configuration();
+		conf.set("cityList", cityList);
+		conf.set("city2", city2);
+		conf.set("visitedList", visitedList);
+		Job job = Job.getInstance(conf, "City to City");
+		job.setJarByClass(WordCount.class);
+		job.setMapperClass(CitytoCityMapper.class);
+		job.setCombinerClass(NullReducer.class);
+		job.setReducerClass(NullReducer.class);
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(NullWritable.class);
+		FileInputFormat.addInputPath(job, new Path(inputPath));
+		FileOutputFormat.setOutputPath(job, new Path(outputPath));
+		return(job.waitForCompletion(true) ? 0 : 1);
+	}
+
+	public static class UniqueCityMapper extends Mapper<Object, Text, Text, NullWritable>{
+
+		private Text word = new Text();
+
+		public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+			String[] split = value.toString().split(",+");
+
+            if(!split[8].equals("\\N")) {
+				word.set(split[8]);
+				context.write(word, NullWritable.get());
+			}
+		}
+	}
+
+	public static int UniqueCities(String inputPath, String outputPath) throws Exception {
+		Configuration conf = new Configuration();
+		Job job = Job.getInstance(conf, "UniqueCities");
+		job.setJarByClass(WordCount.class);
+		job.setMapperClass(UniqueCityMapper.class);
+		job.setCombinerClass(NullReducer.class);
+		job.setReducerClass(NullReducer.class);
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(NullWritable.class);
+		FileInputFormat.addInputPath(job, new Path(inputPath));
+		FileOutputFormat.setOutputPath(job, new Path(outputPath));
+		return(job.waitForCompletion(true) ? 0 : 1);
+	}
+
+	public static List<String> findPath(String[] args, String city1, String city2) throws Exception {
+		String line = null;
+		String cityList = city1;
+		String visitedList = "\\N";
+		int stopCount = 0;
+
+        while(true) {
+			CitytoCity(args[2], ("output/stop" + Integer.toString(stopCount)), 
+				                 cityList, city2, visitedList);
+
+			try {
+	            BufferedReader bufferedReader = new BufferedReader(
+	            	             new FileReader("output/stop" + 
+	            	             Integer.toString(stopCount) + "/part-r-00000"));
+		        if((line = bufferedReader.readLine()) != null) {
+			        String[] split = line.split(",+");
+			        if(split[0].equals("!"))
+			        	break;
+			    }
+			    bufferedReader.close();
+			}
+			catch(FileNotFoundException ex) {
+	            System.out.println("Unable to open file");                
+	        }
+	        catch(IOException ex) {
+	            System.out.println("Error reading file");                  
+	        }
+
+			UniqueCities(("output/stop" + Integer.toString(stopCount) + "/part-r-00000"), 
+				         ("output/stop" + Integer.toString(stopCount) + "/cities"));
+
+			try {
+	            BufferedReader bufferedReader = new BufferedReader(
+	            	             new FileReader("output/stop" + 
+	            	             Integer.toString(stopCount) + "/cities/part-r-00000"));
+	        	if((line = bufferedReader.readLine()) != null) {
+	        		visitedList = (visitedList + "," + cityList);
+			        cityList = line;
+			        while((line = bufferedReader.readLine()) != null) {
+			        	cityList = (cityList + "," + line);
+			        }
+			    }
+			    else {
+			    	return(new ArrayList<String>());
+			    }
+			    bufferedReader.close();
+			}
+			catch(FileNotFoundException ex) {
+	            System.out.println("Unable to open file");                
+	        }
+	        catch(IOException ex) {
+	            System.out.println("Error reading file");                  
+	        }
+	        stopCount++;
+    	}
+
+    	List<String> routeList = new ArrayList<String>();
+    	String currentCity = null;
+
+    	while(stopCount >= 0) {
+			try {
+	            BufferedReader bufferedReader = new BufferedReader(
+	            	             new FileReader("output/stop" + 
+	            	             Integer.toString(stopCount) + "/part-r-00000"));
+		        if((line = bufferedReader.readLine()) != null) {
+			        String[] split = line.split(",+");
+			        if(split[0].equals("!")) {
+			        	routeList.add(0, line.substring(2));
+			        	currentCity = split[6];
+			        }
+			        else {
+			        	do {
+							String[] split2 = line.split(",+");
+							if(split2[8].equals(currentCity)) {
+					        	routeList.add(0, line);
+					        	currentCity = split2[5];
+					        	break;
+							}
+			        	} while((line = bufferedReader.readLine()) != null);
+			        }
+			    }
+			    bufferedReader.close();
+			}
+			catch(FileNotFoundException ex) {
+	            System.out.println("Unable to open file");                
+	        }
+	        catch(IOException ex) {
+	            System.out.println("Error reading file");                  
+	        }
+	        stopCount--;
+    	} 
+
+        return routeList;
+	}	
+
 	public static void main(String[] args) throws Exception {
 		Scanner scanner = new Scanner(System.in);
 		System.out.printf("1. Airport and airline search engine\n2. Airline aggregation\n3. Trip recommendation"
@@ -396,7 +567,7 @@ public class WordCount {
 				System.out.println("Invalid input, quitting...");
 			}
 		} else if (choice == 3){
-			// You already know
+			findPath(args, "\"Reno\"", "\"Las Vegas\"");
 		} else{
 			System.out.println("Invalid input, quitting...");
 		}
