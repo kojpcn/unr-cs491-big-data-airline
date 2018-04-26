@@ -425,7 +425,6 @@ public class WordCount {
 		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 		return(job.waitForCompletion(true) ? 0 : 1);
 	}
-
 	public static List<String> findPath(String[] args, String city1, String city2) throws Exception {
 		String line = null;
 		String cityList = city1;
@@ -462,7 +461,13 @@ public class WordCount {
 	            	             new FileReader("output/stop" + 
 	            	             Integer.toString(stopCount) + "/cities/part-r-00000"));
 	        	if((line = bufferedReader.readLine()) != null) {
-	        		visitedList = (visitedList + "," + cityList);
+					String[] tempSplit = visitedList.split(",+");
+					List<String> tempList = Arrays.asList(tempSplit);
+					String[] tempSplit2 = cityList.split(",+");
+					List<String> tempList2 = Arrays.asList(tempSplit2);
+					for(String s : tempList2)
+					    if(!tempList.contains(s))
+					        visitedList = (visitedList + "," + s);
 			        cityList = line;
 			        while((line = bufferedReader.readLine()) != null) {
 			        	cityList = (cityList + "," + line);
@@ -519,6 +524,93 @@ public class WordCount {
     	} 
 
         return routeList;
+	}	
+
+	public static List<String> findHops(String[] args, String city1, int hops) throws Exception {
+		String line = null;
+		String cityList = city1;
+		String visitedList = "\\N";
+		int stopCount = 0;
+
+        while(stopCount < hops) {
+			CitytoCity(args[2], ("output/stop" + Integer.toString(stopCount)), 
+				                 cityList, "Unused value", visitedList);
+
+			try {
+	            BufferedReader bufferedReader = new BufferedReader(
+	            	             new FileReader("output/stop" + 
+	            	             Integer.toString(stopCount) + "/part-r-00000"));
+		        if((line = bufferedReader.readLine()) != null) {
+			        String[] split = line.split(",+");
+			        if(split[0].equals("!"))
+			        	break;
+			    }
+			    bufferedReader.close();
+			}
+			catch(FileNotFoundException ex) {
+	            System.out.println("Unable to open file");                
+	        }
+	        catch(IOException ex) {
+	            System.out.println("Error reading file");                  
+	        }
+
+			UniqueCities(("output/stop" + Integer.toString(stopCount) + "/part-r-00000"), 
+				         ("output/stop" + Integer.toString(stopCount) + "/cities"));
+
+			try {
+	            BufferedReader bufferedReader = new BufferedReader(
+	            	             new FileReader("output/stop" + 
+	            	             Integer.toString(stopCount) + "/cities/part-r-00000"));
+	        	if((line = bufferedReader.readLine()) != null) {
+					String[] tempSplit = visitedList.split(",+");
+					List<String> tempList = Arrays.asList(tempSplit);
+					String[] tempSplit2 = cityList.split(",+");
+					List<String> tempList2 = Arrays.asList(tempSplit2);
+					for(String s : tempList2)
+					    if(!tempList.contains(s))
+					        visitedList = (visitedList + "," + s);
+			        cityList = line;
+			        while((line = bufferedReader.readLine()) != null) {
+			        	cityList = (cityList + "," + line);
+			        }
+			    }
+			    else {
+					String[] tempSplit = visitedList.split(",+");
+					List<String> tempList = Arrays.asList(tempSplit);
+					String[] tempSplit2 = cityList.split(",+");
+					List<String> tempList2 = Arrays.asList(tempSplit2);
+					for(String s : tempList2)
+					    if(!tempList.contains(s))
+					        visitedList = (visitedList + "," + s);
+					String[] visitedSplit = visitedList.split(",+");
+					List<String> visitedList2 = Arrays.asList(Arrays.copyOfRange(visitedSplit, 2, visitedSplit.length));
+			        return visitedList2;
+			    }
+			    bufferedReader.close();
+			}
+			catch(FileNotFoundException ex) {
+	            System.out.println("Unable to open file");                
+	        }
+	        catch(IOException ex) {
+	            System.out.println("Error reading file");                  
+	        }
+	        stopCount++;
+    	}
+
+		String[] tempSplit = visitedList.split(",+");
+		List<String> tempList = Arrays.asList(tempSplit);
+		String[] tempSplit2 = cityList.split(",+");
+		List<String> tempList2 = Arrays.asList(tempSplit2);
+		for(String s : tempList2)
+		    if(!tempList.contains(s))
+		        visitedList = (visitedList + "," + s);
+		String[] visitedSplit = visitedList.split(",+");
+		List<String> visitedList2 = Arrays.asList(Arrays.copyOfRange(visitedSplit, 2, visitedSplit.length));
+		for(String s : visitedList2) {
+			System.out.println(s);
+		}
+
+        return visitedList2;
 	}	
 
 	public static void main(String[] args) throws Exception {
@@ -604,7 +696,7 @@ public class WordCount {
 					}
 				}
 			} else if (choice == 3) {
-				//
+				findHops(args, "\"Reno\"", 1);
 			} else if (choice == 4) {
 				//
 			} else {
