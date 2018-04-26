@@ -612,99 +612,197 @@ public class AirlineSearchEngine {
 		return visitedList2;
 	}	
 
+    public static void printFile(String fileName) {
+    	String line = null;
+		try {
+			BufferedReader bufferedReader = new BufferedReader(
+							new FileReader(fileName));
+			while((line = bufferedReader.readLine()) != null) {
+				System.out.println(line);
+			}
+			bufferedReader.close();
+		}
+		catch(FileNotFoundException ex) {
+			System.out.println("Unable to open file");				
+		}
+		catch(IOException ex) {
+			System.out.println("Error reading file");				  
+		}
+	}
+
+    public static void print15Countries(String fileName) {
+    	String line = null;
+    	System.out.println("Rank\tAirports\tCountry");
+		try {
+			BufferedReader bufferedReader = new BufferedReader(
+							new FileReader(fileName));
+			for(int i = 1; i <= 15; i++) {
+				line = bufferedReader.readLine();
+				System.out.print(Integer.toString(i) + "\t");
+				String[] split = line.split("\t+");
+				System.out.println(split[0] + "\t\t" + split[1]);
+			}
+			bufferedReader.close();
+		}
+		catch(FileNotFoundException ex) {
+			System.out.println("Unable to open file");				
+		}
+		catch(IOException ex) {
+			System.out.println("Error reading file");				  
+		}
+	}
+
+    public static void printTopCities(String fileName, int topCount) {
+    	String line = null;
+    	System.out.println("Rank\tAirports\tCountry");
+		try {
+			BufferedReader bufferedReader = new BufferedReader(
+							new FileReader(fileName));
+			for(int i = 1; i <= topCount; i++) {
+				line = bufferedReader.readLine();
+				System.out.print(Integer.toString(i) + "\t");
+				String[] split = line.split("\t+");
+				System.out.println(split[0] + "\t\t" + split[1]);
+			}
+			bufferedReader.close();
+		}
+		catch(FileNotFoundException ex) {
+			System.out.println("Unable to open file");				
+		}
+		catch(IOException ex) {
+			System.out.println("Error reading file");				  
+		}
+	}
+
 	public static void main(String[] args) throws Exception {
 		Scanner scanner = new Scanner(System.in);
-		System.out.printf("1. Airport and airline search engine\n2. Airline aggregation\n3. Trip recommendation"
-			+ "\nYour choice? ");
-		int choice = scanner.nextInt();
-		if (choice == 1) {
-			System.out.printf("1. List of airports in country X\n2. List of airlines with X stops\n" + 
-				"3. List of airlines operating with code Share\n4. List of active airlines in the United States\n"
-				+ "Your choice? ");
-			choice = scanner.nextInt();
-			scanner.nextLine();	// Remove nextline character from previous input
-			if (choice == 1) {
-				System.out.printf("Which country? ");
-				String whichCountry = scanner.nextLine();
-				AirportByCountry(args[0], args[3], "\"" + whichCountry + "\"");
-			} else if (choice == 2) {
-				System.out.printf("Which airport to start from? ");
-				String sourcePort = scanner.nextLine();
-				System.out.printf("Where is the destination? ");
-				String destinationPort = scanner.nextLine();
-				System.out.printf("How many stops? ");
-				choice = scanner.nextInt();
-				AirlineStops(args[2], args[3], sourcePort, destinationPort, Integer.toString(choice));
-			} else if (choice == 3) {
-				CodeShare(args[2], args[3]);
-			} else if (choice == 4) {
-				ActiveAirlines(args[1], args[3], "\"United States\"");
-			} else {
-				System.out.println("Invalid input, quitting...");
-			}
 
-		} else if (choice == 2) {
-			System.out.printf("1. Country with most airports\n2. Cities with most traffic\nYour choice? ");
-			choice = scanner.nextInt();
-			scanner.nextLine();	// Remove nextline character from previous input
-			if (choice == 1){
-				AggregateByCountry(args[0], args[3]);
-				OrderGreatestVal("output/part-r-00000", "output/output");
-			} else if (choice == 2) {
-				AirlineCity(args[2], args[3]);
-				AirlineCityCount("output/part-r-00000", "output/output");
-				OrderGreatestVal("output/output/part-r-00000", "output/output2");
-			} else {
-				System.out.println("Invalid input, quitting...");
-			}
-		} else if (choice == 3){
-			System.out.printf("1. Check reachability\n2. Constrained reachability\n3. Bounded reachability\nYour choice? ");
-			choice = scanner.nextInt();
-			scanner.nextLine();	// Remove nextline character from previous input
-			if (choice == 1){
-				System.out.printf("Which city to start from? ");
-				String sourcePort = scanner.nextLine();
-				System.out.printf("Where is the destination? ");
-				String destinationPort = scanner.nextLine();
-				List<String> isReachable = findPath(args, "\"" + sourcePort + "\"", "\"" + destinationPort + "\"");
-				if (isReachable.isEmpty()) {
-					System.out.println(destinationPort + " is not reachable from " + sourcePort);
-				} else {
-					System.out.println(destinationPort + " is reachable from " + sourcePort);
-					for (String s : isReachable){
-						System.out.println(s);
-					}
-				}
-			} else if (choice == 2) {
-				System.out.printf("Which city to start from? ");
-				String sourcePort = scanner.nextLine();
-				System.out.printf("Where is the destination? ");
-				String destinationPort = scanner.nextLine();
-				System.out.printf("How many stops maximum? ");
-				int numStops = scanner.nextInt();
+		while(true) {
+			System.out.printf("1. Airport and airline search engine\n2. Airline aggregation\n3. Trip recommendation\n4. Quit"
+				+ "\nYour choice? ");
+			int choice = scanner.nextInt();
+			if (choice == 1) {
+				System.out.printf("1. List of airports in country X\n2. List of airlines with X stops\n" + 
+					"3. List of airlines operating with code Share\n4. List of active airlines in country X\n"
+					+ "Your choice? ");
+				choice = scanner.nextInt();
 				scanner.nextLine();	// Remove nextline character from previous input
-				List<String> isReachable = findPath(args, "\"" + sourcePort + "\"", "\"" + destinationPort + "\"");
-				if (isReachable.isEmpty()) {
-					System.out.println(destinationPort + " is not reachable from " + sourcePort);
-				} else if (isReachable.size() > numStops + 1) {
-					System.out.println(destinationPort + " is not reachable from " + sourcePort + " with less than " + numStops + " stop" + ((numStops == 1) ? "" : "s") + ".");
+				if (choice == 1) {
+					System.out.printf("Which country? ");
+					String whichCountry = scanner.nextLine();
+					AirportByCountry(args[0], args[3], "\"" + whichCountry + "\"");
+					System.out.println();
+					printFile("output/part-r-00000");
+					System.out.println();
+				} else if (choice == 2) {
+					System.out.printf("Which airport to start from? ");
+					String sourcePort = scanner.nextLine();
+					System.out.printf("Where is the destination? ");
+					String destinationPort = scanner.nextLine();
+					System.out.printf("How many stops? ");
+					choice = scanner.nextInt();
+					AirlineStops(args[2], args[3], sourcePort, destinationPort, Integer.toString(choice));
+					System.out.println();
+					printFile("output/part-r-00000");
+					System.out.println();
+				} else if (choice == 3) {
+					CodeShare(args[2], args[3]);
+					System.out.println();
+					printFile("output/part-r-00000");
+					System.out.println();
+				} else if (choice == 4) {
+					System.out.printf("Which country? ");
+					String whichCountry = scanner.nextLine();
+					ActiveAirlines(args[1], args[3], "\"" + whichCountry + "\"");
+					System.out.println();
+					printFile("output/part-r-00000");
+					System.out.println();
 				} else {
-					System.out.println(destinationPort + " is reachable from " + sourcePort + " in " + (isReachable.size() - 1) + " stop" + (((isReachable.size() - 1) == 1) ? "" : "s")  + ".");
-					for (String s : isReachable){
-						System.out.println(s);
-					}
+					System.out.println("Invalid input, quitting...");
 				}
-			} else if (choice == 3) {
-				System.out.printf("Which airport to start from? ");
-				String sourcePort = scanner.nextLine();
-				System.out.printf("How many hops? ");
-				int numHops = scanner.nextInt();
-				findHops(args, "\"" + sourcePort + "\"", numHops);
-			} else {
+
+			} else if (choice == 2) {
+				System.out.printf("1. Country with most airports\n2. Top k cities with most traffic\nYour choice? ");
+				choice = scanner.nextInt();
+				scanner.nextLine();	// Remove nextline character from previous input
+				if (choice == 1){
+					AggregateByCountry(args[0], args[3]);
+					OrderGreatestVal("output/part-r-00000", "output/output");
+					System.out.println();
+					print15Countries("output/output/part-r-00000");
+					System.out.println();
+				} else if (choice == 2) {
+					System.out.printf("How many cities? ");
+					int numCities = scanner.nextInt();
+					scanner.nextLine();	// Remove nextline character from previous input
+					AirlineCity(args[2], args[3]);
+					AirlineCityCount("output/part-r-00000", "output/output");
+					OrderGreatestVal("output/output/part-r-00000", "output/output2");
+					System.out.println();
+					printTopCities("output/output2/part-r-00000", numCities);
+					System.out.println();
+				} else {
+					System.out.println("Invalid input, quitting...");
+				}
+			} else if (choice == 3){
+				System.out.printf("1. Check reachability\n2. Constrained reachability\n3. Bounded reachability\nYour choice? ");
+				choice = scanner.nextInt();
+				scanner.nextLine();	// Remove nextline character from previous input
+				if (choice == 1){
+					System.out.printf("Which city to start from? ");
+					String sourcePort = scanner.nextLine();
+					System.out.printf("Where is the destination? ");
+					String destinationPort = scanner.nextLine();
+					List<String> isReachable = findPath(args, "\"" + sourcePort + "\"", "\"" + destinationPort + "\"");
+					System.out.println();
+					if (isReachable.isEmpty()) {
+						System.out.println(destinationPort + " is not reachable from " + sourcePort);
+					} else {
+						System.out.println(destinationPort + " is reachable from " + sourcePort);
+						for (String s : isReachable){
+							System.out.println(s);
+						}
+					}
+					System.out.println();
+				} else if (choice == 2) {
+					System.out.printf("Which city to start from? ");
+					String sourcePort = scanner.nextLine();
+					System.out.printf("Where is the destination? ");
+					String destinationPort = scanner.nextLine();
+					System.out.printf("How many stops maximum? ");
+					int numStops = scanner.nextInt();
+					scanner.nextLine();	// Remove nextline character from previous input
+					List<String> isReachable = findPath(args, "\"" + sourcePort + "\"", "\"" + destinationPort + "\"");
+					System.out.println();
+					if (isReachable.isEmpty()) {
+						System.out.println(destinationPort + " is not reachable from " + sourcePort);
+					} else if (isReachable.size() > numStops + 1) {
+						System.out.println(destinationPort + " is not reachable from " + sourcePort + " with less than " + numStops + " stop" + ((numStops == 1) ? "" : "s") + ".");
+					} else {
+						System.out.println(destinationPort + " is reachable from " + sourcePort + " in " + (isReachable.size() - 1) + " stop" + (((isReachable.size() - 1) == 1) ? "" : "s")  + ".");
+						for (String s : isReachable){
+							System.out.println(s);
+						}
+					}
+					System.out.println();
+				} else if (choice == 3) {
+					System.out.printf("Which airport to start from? ");
+					String sourcePort = scanner.nextLine();
+					System.out.printf("How many hops? ");
+					int numHops = scanner.nextInt();
+					findHops(args, "\"" + sourcePort + "\"", numHops);
+					System.out.println();
+					printFile("output/part-r-00000");
+					System.out.println();
+				} else {
+					System.out.println("Invalid input, quitting...");
+				}
+			} else if (choice == 4){
+				break;
+			} else{
 				System.out.println("Invalid input, quitting...");
 			}
-		} else{
-			System.out.println("Invalid input, quitting...");
+			FileUtils.deleteDirectory(new File("output"));
 		}
 	}
 }
