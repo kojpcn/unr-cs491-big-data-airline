@@ -651,7 +651,7 @@ public class AirlineSearchEngine {
 
     public static void printTopCities(String fileName, int topCount) {
     	String line = null;
-    	System.out.println("Rank\tAirports\tCountry");
+    	System.out.println("Rank\tAirlines\tCity");
 		try {
 			BufferedReader bufferedReader = new BufferedReader(
 							new FileReader(fileName));
@@ -719,7 +719,7 @@ public class AirlineSearchEngine {
 				}
 
 			} else if (choice == 2) {
-				System.out.printf("1. Country with most airports\n2. Top k cities with most traffic\nYour choice? ");
+				System.out.printf("1. Country with most airports\n2. Top k cities where the most airlines operate\nYour choice? ");
 				choice = scanner.nextInt();
 				scanner.nextLine();	// Remove nextline character from previous input
 				if (choice == 1){
